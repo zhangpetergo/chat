@@ -1,0 +1,6 @@
+{"level":"INFO","ts":"2025-02-19T21:27:42.969+0800","caller":"cap/main.go:24","msg":"startup","GOMAXPROCS":32}
+{"level":"INFO","ts":"2025-02-19T21:27:42.969+0800","caller":"cap/main.go:27","msg":"startup","status":"started"}
+{"level":"INFO","ts":"2025-02-19T21:27:46.430+0800","caller":"cap/main.go:35","msg":"startup","status":"shuttingdown"}
+{"level":"INFO","ts":"2025-02-19T21:29:59.929+0800","caller":"cap/main.go:24","msg":"startup","GOMAXPROCS":32}
+{"level":"INFO","ts":"2025-02-19T21:29:59.930+0800","caller":"cap/main.go:27","msg":"startup","status":"started"}
+{"level":"INFO","ts":"2025-02-19T21:32:00.818+0800","caller":"cap/main.go:35","msg":"startup","status":"shuttingdown"}
