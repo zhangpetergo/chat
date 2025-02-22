@@ -5,6 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/zhangpetergo/chat/chat/app/sdk/errs"
 	"github.com/zhangpetergo/chat/chat/foundation/logger"
+	"github.com/zhangpetergo/chat/chat/foundation/web"
+	"go.uber.org/zap"
 	"path"
 )
 
@@ -12,6 +14,8 @@ func Errors() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		c.Next()
+
+		ctx := c.Request.Context()
 
 		// 程序处理完毕
 		// 判断是否存在错误
@@ -27,7 +31,11 @@ func Errors() gin.HandlerFunc {
 				appErr = errs.Newf(errs.Internal, "Internal Server Error")
 			}
 
-			logger.Log.Errorw("handled error during request",
+			traceID := web.GetTraceID(ctx).String()
+
+			log := logger.Log.With(zap.String("uuid", traceID))
+
+			log.Errorw("handled error during request",
 				"err", err,
 				"source_err_file", path.Base(appErr.FileName),
 				"source_err_func", path.Base(appErr.FuncName))

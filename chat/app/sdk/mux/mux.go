@@ -11,7 +11,7 @@ func WebAPI() http.Handler {
 	app := gin.New()
 
 	// add mid
-	app.Use(mid.Logger(), mid.Errors(), mid.Panics())
+	app.Use(mid.TraceID(), mid.Logger(), mid.Errors(), mid.Panics())
 
 	// add route
 	chatapp.Routes(app)
