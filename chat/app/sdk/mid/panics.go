@@ -6,6 +6,7 @@ import (
 	"runtime/debug"
 )
 
+// Panics 捕获 panic
 func Panics() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {

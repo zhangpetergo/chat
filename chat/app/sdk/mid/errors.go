@@ -10,6 +10,7 @@ import (
 	"path"
 )
 
+// Errors 处理请求中的错误
 func Errors() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
