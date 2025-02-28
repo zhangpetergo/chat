@@ -77,7 +77,7 @@ func getEncoder() zapcore.Encoder {
 func getWriterSyncer(fileName string) zapcore.WriteSyncer {
 
 	lumberWriteSyncer := &lumberjack.Logger{
-		Filename:   "./" + fileName,
+		Filename:   "./logs" + fileName,
 		MaxSize:    10, // megabytes
 		MaxBackups: 100,
 		MaxAge:     28,    // days
@@ -93,7 +93,7 @@ func GetMultiWriteSyncer(fileName string) zapcore.WriteSyncer {
 
 func GetInfoWriteSyncer(fileName string) zapcore.WriteSyncer {
 	lumberWriteSyncer := &lumberjack.Logger{
-		Filename:   "./info.log",
+		Filename:   "./logs/info.log",
 		MaxSize:    10, // megabytes
 		MaxBackups: 100,
 		MaxAge:     28,    // days
@@ -105,7 +105,7 @@ func GetInfoWriteSyncer(fileName string) zapcore.WriteSyncer {
 
 func GetErrorWriteSyncer(fileName string) zapcore.WriteSyncer {
 	lumberWriteSyncer := &lumberjack.Logger{
-		Filename:   "./error.log",
+		Filename:   "./logs/error.log",
 		MaxSize:    10, // megabytes
 		MaxBackups: 100,
 		MaxAge:     28,    // days
