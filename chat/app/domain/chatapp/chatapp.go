@@ -57,7 +57,7 @@ func (a *app) connect(c *gin.Context) {
 
 func (a *app) handleShake(conn *websocket.Conn) (user, error) {
 	// 服务器向客户端发送握手消息
-	if err := conn.WriteMessage(websocket.TextMessage, []byte("hello")); err != nil {
+	if err := conn.WriteMessage(websocket.TextMessage, []byte("HELLO")); err != nil {
 		return user{}, err
 	}
 
@@ -73,6 +73,7 @@ func (a *app) handleShake(conn *websocket.Conn) (user, error) {
 	}
 
 	var usr user
+
 	err = json.Unmarshal(msg, &usr)
 	if err != nil {
 		return user{}, fmt.Errorf("unmarshal: %w", err)
@@ -101,6 +102,7 @@ func (a *app) readMessage(ctx context.Context, conn *websocket.Conn) ([]byte, er
 		logger.Log.Info("starting handshake read")
 		defer logger.Log.Info("completed handshake read")
 		_, msg, err := conn.ReadMessage()
+
 		if err != nil {
 			ch <- response{message: nil, err: err}
 			return
@@ -115,7 +117,7 @@ func (a *app) readMessage(ctx context.Context, conn *websocket.Conn) ([]byte, er
 	select {
 	case <-ctx.Done():
 		return nil, ctx.Err()
-	case resp := <-ch:
+	case resp = <-ch:
 		if resp.err != nil {
 			return nil, resp.err
 		}
