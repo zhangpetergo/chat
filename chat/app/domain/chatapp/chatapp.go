@@ -9,6 +9,8 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/zhangpetergo/chat/chat/app/sdk/errs"
 	"github.com/zhangpetergo/chat/chat/foundation/logger"
+	"github.com/zhangpetergo/chat/chat/foundation/web"
+	"go.uber.org/zap"
 	"time"
 )
 
@@ -21,6 +23,9 @@ func NewApp() *app {
 }
 
 func (a *app) connect(c *gin.Context) {
+
+	traceID := web.GetTraceID(c.Request.Context()).String()
+
 	// client connect websocket
 	// 升级http协议为websocket协议
 	conn, err := a.WS.Upgrade(c.Writer, c.Request, nil)
@@ -31,13 +36,13 @@ func (a *app) connect(c *gin.Context) {
 	}
 	defer conn.Close()
 
-	usr, err := a.handleShake(conn)
+	usr, err := a.handleShake(conn, traceID)
 	if err != nil {
 		c.Error(errs.Newf(errs.FailedPrecondition, "handshake failed: %v", err))
 		return
 	}
 
-	logger.Log.Infow("handshake completed", "user", usr)
+	logger.Log.With(zap.String("uuid", traceID)).Infow("handshake completed", "user", usr)
 
 	//// 创建一个ticker 用于心跳检测
 	//ticker := time.NewTicker(time.Second)
@@ -55,7 +60,7 @@ func (a *app) connect(c *gin.Context) {
 
 }
 
-func (a *app) handleShake(conn *websocket.Conn) (user, error) {
+func (a *app) handleShake(conn *websocket.Conn, traceID string) (user, error) {
 	// 服务器向客户端发送握手消息
 	if err := conn.WriteMessage(websocket.TextMessage, []byte("HELLO")); err != nil {
 		return user{}, err
@@ -67,7 +72,7 @@ func (a *app) handleShake(conn *websocket.Conn) (user, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
 	defer cancel()
 
-	msg, err := a.readMessage(ctx, conn)
+	msg, err := a.readMessage(ctx, conn, traceID)
 	if err != nil {
 		return user{}, fmt.Errorf("read message: %w", err)
 	}
@@ -87,7 +92,7 @@ func (a *app) handleShake(conn *websocket.Conn) (user, error) {
 	return usr, nil
 }
 
-func (a *app) readMessage(ctx context.Context, conn *websocket.Conn) ([]byte, error) {
+func (a *app) readMessage(ctx context.Context, conn *websocket.Conn, traceID string) ([]byte, error) {
 
 	type response struct {
 		message []byte
@@ -99,8 +104,8 @@ func (a *app) readMessage(ctx context.Context, conn *websocket.Conn) ([]byte, er
 	// channel 设置缓冲区大小为1的原因是避免发生goroutine泄露
 	ch := make(chan response, 1)
 	go func() {
-		logger.Log.Info("starting handshake read")
-		defer logger.Log.Info("completed handshake read")
+		logger.Log.With(zap.String("uuid", traceID)).Info("starting handshake read")
+		defer logger.Log.With(zap.String("uuid", traceID)).Info("completed handshake read")
 		_, msg, err := conn.ReadMessage()
 
 		if err != nil {
