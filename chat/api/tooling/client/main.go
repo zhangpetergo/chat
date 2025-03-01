@@ -25,7 +25,9 @@ func hack1() error {
 
 	defer conn.Close()
 
+	// -------------------------------------------------------------------------
 	// 读取服务端返回的消息
+	
 	_, msg, err := conn.ReadMessage()
 	if err != nil {
 		return fmt.Errorf("read: %w", err)
@@ -33,6 +35,9 @@ func hack1() error {
 	if string(msg) != "HELLO" {
 		return fmt.Errorf("unexpected message: %s", msg)
 	}
+
+	// -------------------------------------------------------------------------
+	// 向服务端发送消息 {"id":"8ce5af7a-788c-4c83-8e70-4500b775b359","name":"Alice"}
 
 	usr := struct {
 		ID   uuid.UUID `json:"id"`
@@ -52,7 +57,9 @@ func hack1() error {
 		return fmt.Errorf("write: %w", err)
 	}
 
+	// -------------------------------------------------------------------------
 	// 读取服务端返回的消息
+
 	_, msg, err = conn.ReadMessage()
 	if err != nil {
 		return fmt.Errorf("read: %w", err)
