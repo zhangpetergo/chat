@@ -29,13 +29,14 @@ func InitLogger() {
 	infoFileWriteSyncer := GetInfoWriteSyncer("")
 	errorWriteSyncer := GetErrorWriteSyncer("")
 
-	infoCore := zapcore.NewCore(getEncoder(), zapcore.NewMultiWriteSyncer(infoFileWriteSyncer, os.Stdout), lowLevel)
-	errorCore := zapcore.NewCore(getEncoder(), zapcore.NewMultiWriteSyncer(errorWriteSyncer, os.Stdout), highLevel)
+	infoCore := zapcore.NewCore(getJSONEncoder(), zapcore.NewMultiWriteSyncer(infoFileWriteSyncer, os.Stdout), lowLevel)
+	errorCore := zapcore.NewCore(getJSONEncoder(), zapcore.NewMultiWriteSyncer(errorWriteSyncer, os.Stdout), highLevel)
 
 	var coreArr []zapcore.Core
 
 	coreArr = append(coreArr, infoCore)
 	coreArr = append(coreArr, errorCore)
+	//coreArr = append(coreArr, consoleCore)
 
 	logger := zap.New(zapcore.NewTee(coreArr...), zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel)) // AddCaller() 显示文件名和行号
 
@@ -45,7 +46,22 @@ func InitLogger() {
 	defer Log.Sync()
 }
 
-func getEncoder() zapcore.Encoder {
+func getConsoleEncoder() zapcore.Encoder {
+	encoderConfig := zap.NewProductionEncoderConfig()
+	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+
+	// 在日志中使用大写字母记录日志级别
+	// 比如 INFO
+	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+
+	// 不同级别的日志显示不同的颜色
+	//encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+
+	return zapcore.NewConsoleEncoder(encoderConfig)
+
+}
+
+func getJSONEncoder() zapcore.Encoder {
 	encoderConfig := zap.NewProductionEncoderConfig()
 
 	//TimeKey:        "ts",
@@ -70,7 +86,7 @@ func getEncoder() zapcore.Encoder {
 	// 不同级别的日志显示不同的颜色
 	//encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 
-	return zapcore.NewJSONEncoder(encoderConfig)
+	return zapcore.NewConsoleEncoder(encoderConfig)
 
 }
 

@@ -15,8 +15,11 @@ chat-test-error:
 chat-test-panic:
 	curl -i -X GET http://localhost:9000/testpanic
 
-chat-hack:
-	go run chat/api/tooling/client/main.go
+chat-hack-0:
+	go run chat/api/tooling/client/main.go 0
+
+chat-hack-1:
+	go run chat/api/tooling/client/main.go 1
 
 
 # ==============================================================================
