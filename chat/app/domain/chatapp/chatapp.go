@@ -1,17 +1,12 @@
 package chatapp
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
 	"github.com/zhangpetergo/chat/chat/app/sdk/chat"
 	"github.com/zhangpetergo/chat/chat/app/sdk/errs"
-
-	"github.com/zhangpetergo/chat/chat/foundation/web"
 )
 
 type app struct {
-	WS   websocket.Upgrader
 	Chat *chat.Chat
 }
 
@@ -24,25 +19,16 @@ func NewApp() *app {
 func (a *app) connect(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	traceID := web.GetTraceID(c.Request.Context()).String()
-
-	// client connect websocket
-	// 升级http协议为websocket协议
-	conn, err := a.WS.Upgrade(c.Writer, c.Request, nil)
-	if err != nil {
-		c.Error(errs.Newf(errs.FailedPrecondition, "websocket upgrade failed: %v", err))
-		return
-	}
-	defer conn.Close()
-
-	err = a.Chat.HandleShake(conn, traceID)
+	usr, err := a.Chat.HandleShake(ctx, c.Writer, c.Request)
 	if err != nil {
 		c.Error(errs.Newf(errs.FailedPrecondition, "handshake failed: %v", err))
 		return
 	}
 
-	a.Chat.Listen(ctx, conn, traceID)
-	
+	defer usr.Conn.Close()
+
+	a.Chat.Listen(ctx, usr)
+
 }
 
 func (a *app) test(c *gin.Context) {
@@ -52,7 +38,7 @@ func (a *app) test(c *gin.Context) {
 }
 
 func (a *app) testError(c *gin.Context) {
-	c.Error(errs.NewError(errors.New("text error")))
+	c.Error(errs.Newf(errs.Internal, "text error"))
 	return
 }
 

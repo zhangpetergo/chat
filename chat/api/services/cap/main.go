@@ -17,6 +17,7 @@ import (
 var build = "develop"
 
 func main() {
+
 	// 初始化日志
 	logger.InitLogger()
 
